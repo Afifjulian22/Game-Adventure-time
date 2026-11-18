@@ -14,10 +14,15 @@ const HEART_SHEET := preload("res://Free/Pixel Heart Sprite Sheet 32x32.png")
 const HEART_SIZE: float = 44.0
 const HEART_GAP: float = 6.0
 
+# --- multiplayer ----------------------------------------------------------
+const NET_SYNC_INTERVAL: float = 0.05   # 20 kali per detik
+const NET_SMOOTHING: float = 20.0
+
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var btn_left: TouchScreenButton = $CanvasLayer/BtnLeft
 @onready var btn_right: TouchScreenButton = $CanvasLayer/BtnRight
 @onready var btn_jump: TouchScreenButton = $CanvasLayer/BtnJump
+@onready var camera: Camera2D = $Camera2D
 
 var jump_count: int = 0
 var spawn_point: Vector2 = Vector2.ZERO
@@ -27,6 +32,13 @@ var is_invulnerable: bool = false
 var lives: int = MAX_LIVES
 var _heart_full: AtlasTexture
 var _heart_empty: AtlasTexture
+
+# Player 1 = Afif (peer 1 / host), Player 2 = Pink Man (peer 2 / client).
+var player_index: int = 1
+var local_control: bool = true
+var _sync_timer: float = 0.0
+var _remote_target: Vector2 = Vector2.ZERO
+var _has_remote_target: bool = false
 
 
 func _ready() -> void:
@@ -47,6 +59,69 @@ func _ready() -> void:
 
 	_layout_touch_buttons()
 	get_viewport().size_changed.connect(_layout_touch_buttons)
+
+
+# ------------------------------------------------------------------ multiplayer
+# Dipanggil oleh level.gd sebelum frame pertama.
+# index       : 1 = Afif, 2 = Pink Man (identitas karakter saja)
+# local       : true kalau karakter ini dikendalikan perangkat ini
+# owner_peer  : peer id pemilik karakter (host = 1, client = id acak dari ENet)
+func setup_player(index: int, local: bool, owner_peer: int) -> void:
+	player_index = index
+	local_control = local
+	set_multiplayer_authority(owner_peer)
+
+	camera.enabled = local_control
+	$CanvasLayer.visible = local_control
+	set_physics_process(local_control)
+	set_process(not local_control)
+
+	if not local_control:
+		velocity = Vector2.ZERO
+		_remote_target = global_position
+
+
+func is_local_player() -> bool:
+	return local_control
+
+
+func _net_is_multiplayer() -> bool:
+	var net := get_node_or_null("/root/Net")
+	return net != null and net.is_multiplayer()
+
+
+# Hanya karakter milik perangkat ini yang mengirim posisi ke perangkat lain.
+func _send_state(delta: float) -> void:
+	if not local_control or not _net_is_multiplayer():
+		return
+
+	_sync_timer += delta
+	if _sync_timer < NET_SYNC_INTERVAL:
+		return
+	_sync_timer = 0.0
+
+	_net_state.rpc(global_position, velocity, String(sprite.animation), sprite.flip_h, is_dead)
+
+
+@rpc("authority", "call_remote", "unreliable_ordered")
+func _net_state(pos: Vector2, vel: Vector2, anim: String, flip: bool, dead: bool) -> void:
+	_remote_target = pos
+	_has_remote_target = true
+	velocity = vel
+
+	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation(anim) and sprite.animation != anim:
+		sprite.play(anim)
+
+	sprite.flip_h = flip
+	sprite.modulate.a = 0.5 if dead else 1.0
+
+
+# Karakter lawan digerakkan halus menuju posisi terakhir dari jaringan.
+func _process(delta: float) -> void:
+	if local_control or not _has_remote_target:
+		return
+
+	global_position = global_position.lerp(_remote_target, clampf(delta * NET_SMOOTHING, 0.0, 1.0))
 
 
 # Keep the on-screen pad and the hearts in the corners whatever the
@@ -77,6 +152,7 @@ func _update_hearts() -> void:
 
 func _physics_process(delta: float) -> void:
 	if is_dead:
+		_send_state(delta)
 		return
 
 	# --- gravity -------------------------------------------------------
@@ -110,6 +186,7 @@ func _physics_process(delta: float) -> void:
 		return
 
 	_update_animation(direction)
+	_send_state(delta)
 
 
 func _standing_on_moving_body() -> bool:
@@ -143,7 +220,7 @@ func _update_animation(direction: float) -> void:
 # Reaksi saat terkena jebakan (duri, api, gergaji).
 # HANYA fungsi ini yang boleh memutar animasi "hit".
 func play_hit() -> void:
-	if is_dead or is_invulnerable:
+	if not local_control or is_dead or is_invulnerable:
 		return
 	sprite.play("hit")
 
@@ -151,7 +228,7 @@ func play_hit() -> void:
 # Jatuh ke pembatas dunia (jurang / batas bawah map).
 # HANYA fungsi ini yang boleh memutar animasi "fall".
 func play_fall() -> void:
-	if is_dead or is_invulnerable:
+	if not local_control or is_dead or is_invulnerable:
 		return
 	sprite.play("fall")
 
@@ -159,7 +236,7 @@ func play_fall() -> void:
 # Dipanggil saat jatuh ke jurang / melewati batas bawah map.
 # Tidak mengubah animasi sama sekali.
 func die() -> void:
-	if is_dead or is_invulnerable:
+	if not local_control or is_dead or is_invulnerable:
 		return
 
 	is_dead = true

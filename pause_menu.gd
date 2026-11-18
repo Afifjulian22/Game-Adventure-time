@@ -46,7 +46,11 @@ func _on_resume_pressed() -> void:
 func _on_main_menu_pressed() -> void:
 	visible = false
 	get_tree().paused = false
-	get_tree().change_scene_to_file("res://menu.tscn")
+	var net := get_node_or_null("/root/Net")
+	if net != null:
+		net.back_to_menu()
+	else:
+		get_tree().change_scene_to_file("res://menu.tscn")
 
 
 func _on_quit_pressed() -> void:

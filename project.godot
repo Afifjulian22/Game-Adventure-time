@@ -14,10 +14,14 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="Blue Sky"
+config/name="Escape Together"
 run/main_scene="uid://dd8pwof6tg3q6"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+Net="*res://net.gd"
 
 [display]
 

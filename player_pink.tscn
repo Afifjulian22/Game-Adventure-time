@@ -1,0 +1,382 @@
+[gd_scene load_steps=53 format=3]
+
+[ext_resource type="Texture2D" path="res://Free/Main Characters/Pink Man/Idle (32x32).png" id="tex_idle"]
+[ext_resource type="Texture2D" path="res://Free/Main Characters/Pink Man/Run (32x32).png" id="tex_run"]
+[ext_resource type="Texture2D" path="res://Free/Main Characters/Pink Man/Jump (32x32).png" id="tex_jump"]
+[ext_resource type="Texture2D" path="res://Free/Main Characters/Pink Man/Double Jump (32x32).png" id="tex_2jump"]
+[ext_resource type="Texture2D" path="res://Free/Main Characters/Pink Man/Fall (32x32).png" id="tex_fall"]
+[ext_resource type="Texture2D" path="res://Free/Main Characters/Pink Man/Hit (32x32).png" id="tex_hit"]
+[ext_resource type="Script" path="res://player.gd" id="7_script"]
+[ext_resource type="Texture2D" path="res://ui/touch_left.png" id="8_tl"]
+[ext_resource type="Texture2D" path="res://ui/touch_left_pressed.png" id="9_tlp"]
+[ext_resource type="Texture2D" path="res://ui/touch_right.png" id="10_tr"]
+[ext_resource type="Texture2D" path="res://ui/touch_right_pressed.png" id="11_trp"]
+[ext_resource type="Texture2D" path="res://Free/jump-button.png" id="12_jump"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_idle_0"]
+atlas = ExtResource("tex_idle")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_idle_1"]
+atlas = ExtResource("tex_idle")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_idle_2"]
+atlas = ExtResource("tex_idle")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_idle_3"]
+atlas = ExtResource("tex_idle")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_idle_4"]
+atlas = ExtResource("tex_idle")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_idle_5"]
+atlas = ExtResource("tex_idle")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_idle_6"]
+atlas = ExtResource("tex_idle")
+region = Rect2(192, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_idle_7"]
+atlas = ExtResource("tex_idle")
+region = Rect2(224, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_idle_8"]
+atlas = ExtResource("tex_idle")
+region = Rect2(256, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_idle_9"]
+atlas = ExtResource("tex_idle")
+region = Rect2(288, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_idle_10"]
+atlas = ExtResource("tex_idle")
+region = Rect2(320, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_run_0"]
+atlas = ExtResource("tex_run")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_run_1"]
+atlas = ExtResource("tex_run")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_run_2"]
+atlas = ExtResource("tex_run")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_run_3"]
+atlas = ExtResource("tex_run")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_run_4"]
+atlas = ExtResource("tex_run")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_run_5"]
+atlas = ExtResource("tex_run")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_run_6"]
+atlas = ExtResource("tex_run")
+region = Rect2(192, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_run_7"]
+atlas = ExtResource("tex_run")
+region = Rect2(224, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_run_8"]
+atlas = ExtResource("tex_run")
+region = Rect2(256, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_run_9"]
+atlas = ExtResource("tex_run")
+region = Rect2(288, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_run_10"]
+atlas = ExtResource("tex_run")
+region = Rect2(320, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_run_11"]
+atlas = ExtResource("tex_run")
+region = Rect2(352, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_jump_0"]
+atlas = ExtResource("tex_jump")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_djump_0"]
+atlas = ExtResource("tex_2jump")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_djump_1"]
+atlas = ExtResource("tex_2jump")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_djump_2"]
+atlas = ExtResource("tex_2jump")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_djump_3"]
+atlas = ExtResource("tex_2jump")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_djump_4"]
+atlas = ExtResource("tex_2jump")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_djump_5"]
+atlas = ExtResource("tex_2jump")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_fall_0"]
+atlas = ExtResource("tex_fall")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_hit_0"]
+atlas = ExtResource("tex_hit")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_hit_1"]
+atlas = ExtResource("tex_hit")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_hit_2"]
+atlas = ExtResource("tex_hit")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_hit_3"]
+atlas = ExtResource("tex_hit")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_hit_4"]
+atlas = ExtResource("tex_hit")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_hit_5"]
+atlas = ExtResource("tex_hit")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pink_hit_6"]
+atlas = ExtResource("tex_hit")
+region = Rect2(192, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_pink"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_idle_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_idle_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_idle_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_idle_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_idle_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_idle_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_idle_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_idle_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_idle_8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_idle_9")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_idle_10")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 6.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_run_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_run_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_run_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_run_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_run_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_run_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_run_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_run_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_run_8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_run_9")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_run_10")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_run_11")
+}],
+"loop": 1,
+"name": &"run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_jump_0")
+}],
+"loop": 1,
+"name": &"jump",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_djump_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_djump_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_djump_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_djump_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_djump_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_djump_5")
+}],
+"loop": 1,
+"name": &"2jump",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_fall_0")
+}],
+"loop": 1,
+"name": &"fall",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_hit_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_hit_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_hit_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_hit_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_hit_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_hit_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pink_hit_6")
+}],
+"loop": 0,
+"name": &"hit",
+"speed": 10.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_pink"]
+radius = 9.0
+height = 30.0
+
+[node name="pink_player" type="CharacterBody2D" groups=["player"]]
+script = ExtResource("7_script")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(1.8, 1.8)
+limit_left = -40
+limit_top = -260
+limit_right = 8376
+limit_bottom = 960
+position_smoothing_enabled = true
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+scale = Vector2(1.1, 1.1)
+sprite_frames = SubResource("SpriteFrames_pink")
+animation = &"idle"
+autoplay = "idle"
+offset = Vector2(0, -15.6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -15)
+shape = SubResource("CapsuleShape2D_pink")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="BtnLeft" type="TouchScreenButton" parent="CanvasLayer"]
+position = Vector2(84, 678)
+scale = Vector2(0.8, 0.8)
+texture_normal = ExtResource("8_tl")
+texture_pressed = ExtResource("9_tlp")
+action = "move_left"
+
+[node name="BtnRight" type="TouchScreenButton" parent="CanvasLayer"]
+position = Vector2(200, 678)
+scale = Vector2(0.8, 0.8)
+texture_normal = ExtResource("10_tr")
+texture_pressed = ExtResource("11_trp")
+action = "move_right"
+
+[node name="BtnJump" type="TouchScreenButton" parent="CanvasLayer"]
+modulate = Color(1, 1, 1, 0.9)
+position = Vector2(1290, 678)
+scale = Vector2(0.3, 0.3)
+texture_normal = ExtResource("12_jump")
+action = "jump"
+
+[node name="Heart1" type="TextureRect" parent="CanvasLayer"]
+texture_filter = 1
+offset_right = 44.0
+offset_bottom = 44.0
+mouse_filter = 2
+
+[node name="Heart2" type="TextureRect" parent="CanvasLayer"]
+texture_filter = 1
+offset_right = 44.0
+offset_bottom = 44.0
+mouse_filter = 2
+
+[node name="Heart3" type="TextureRect" parent="CanvasLayer"]
+texture_filter = 1
+offset_right = 44.0
+offset_bottom = 44.0
+mouse_filter = 2
