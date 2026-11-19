@@ -140,3 +140,34 @@ func _on_server_disconnected() -> void:
 func _start_client_rpc() -> void:
 	in_game = true
 	get_tree().change_scene_to_file(GAME_SCENE)
+
+
+# ------------------------------------------------------------------ restart
+# Dipakai saat salah satu pemain kehabisan nyawa: kedua perangkat
+# mengulang level dari awal (posisi, nyawa, koin, dan poin ikut reset).
+var _restart_pending: bool = false
+
+
+func restart_level() -> void:
+	if _restart_pending:
+		return
+	if is_multiplayer():
+		_restart_level_rpc.rpc()
+	else:
+		_restart_level_rpc()
+
+
+@rpc("any_peer", "call_local", "reliable")
+func _restart_level_rpc() -> void:
+	if _restart_pending:
+		return
+	_restart_pending = true
+	get_tree().paused = false
+	get_tree().change_scene_to_file(GAME_SCENE)
+
+	# Beri waktu supaya kiriman RPC dari perangkat lain yang datang
+	# hampir bersamaan tidak memicu reload kedua.
+	await get_tree().create_timer(1.5).timeout
+	_restart_pending = false
+
+

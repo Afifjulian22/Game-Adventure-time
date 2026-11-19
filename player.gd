@@ -40,8 +40,14 @@ var _sync_timer: float = 0.0
 var _remote_target: Vector2 = Vector2.ZERO
 var _has_remote_target: bool = false
 
+# --- tali ---------------------------------------------------------------
+var _rope: Node = null
+var _rope_length: float = 0.0
+
 
 func _ready() -> void:
+	_rope = get_parent().get_node_or_null("Rope") if get_parent() != null else null
+
 	spawn_point = global_position
 	safe_position = global_position
 
@@ -79,6 +85,10 @@ func setup_player(index: int, local: bool, owner_peer: int) -> void:
 	if not local_control:
 		velocity = Vector2.ZERO
 		_remote_target = global_position
+
+	# Tali hanya mengikat saat bermain berdua.
+	if local_control and _rope != null and _net_is_multiplayer():
+		_rope_length = _rope.get_max_length()
 
 
 func is_local_player() -> bool:
@@ -176,6 +186,8 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
+	_apply_rope_constraint()
+
 	# --- respawn anchor: remember the last static platform we stood on --
 	if is_on_floor() and not _standing_on_moving_body():
 		safe_position = global_position
@@ -187,6 +199,48 @@ func _physics_process(delta: float) -> void:
 
 	_update_animation(direction)
 	_send_state(delta)
+
+
+# --- tali ---------------------------------------------------------------
+func _rope_partner_node() -> Node2D:
+	var best: Node2D = null
+	var best_distance := INF
+
+	for p in get_tree().get_nodes_in_group("player"):
+		if p == self or not is_instance_valid(p) or p.is_queued_for_deletion():
+			continue
+		if p.get("is_dead") == true:
+			continue
+		var d: float = global_position.distance_squared_to(p.global_position)
+		if d < best_distance:
+			best_distance = d
+			best = p
+
+	return best
+
+
+# Menjaga jarak supaya tidak melebihi panjang tali.
+# Setiap perangkat hanya mengoreksi setengah kelebihan, jadi totalnya pas.
+func _apply_rope_constraint() -> void:
+	if _rope_length <= 0.0 or is_dead:
+		return
+
+	var partner := _rope_partner_node()
+	if partner == null:
+		return
+
+	var offset := global_position - partner.global_position
+	var distance := offset.length()
+	if distance <= 0.001 or distance <= _rope_length:
+		return
+
+	var direction := offset / distance
+	global_position -= direction * (distance - _rope_length) * 0.5
+
+	# Buang kecepatan yang menjauh supaya tidak terus menekan tali.
+	var away := velocity.dot(direction)
+	if away > 0.0:
+		velocity -= direction * away
 
 
 func _standing_on_moving_body() -> bool:
@@ -243,20 +297,27 @@ func die() -> void:
 	lives -= 1
 	_update_hearts()
 	velocity = Vector2.ZERO
+
+	# Nyawa habis: bukan respawn sendiri, tapi seluruh level diulang
+	# dari awal untuk KEDUA pemain (poin ikut kembali ke 0).
+	if lives <= 0:
+		_restart_level_after_delay()
+		return
+
 	await get_tree().create_timer(respawn_delay, false).timeout
 	_respawn()
 
 
+func _restart_level_after_delay() -> void:
+	await get_tree().create_timer(respawn_delay, false).timeout
+	var net := get_node_or_null("/root/Net")
+	if net != null:
+		net.restart_level()
+
+
 func _respawn() -> void:
-	if lives <= 0:
-		# Out of lives: back to the starting checkpoint with a fresh set.
-		lives = MAX_LIVES
-		_update_hearts()
-		safe_position = spawn_point
-		global_position = spawn_point
-	else:
-		# Still has lives: respawn on the last solid foothold.
-		global_position = safe_position
+	# Masih punya nyawa: respawn di pijakan terakhir.
+	global_position = safe_position
 
 	velocity = Vector2.ZERO
 	jump_count = 0
