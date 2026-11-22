@@ -138,7 +138,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
 text = "MAIN SENDIRIAN"
 
-[node name="Host" type="Button" parent="Center/Panel/VBox"]
+[node name="Multiplayer" type="Button" parent="Center/Panel/VBox"]
 custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
@@ -146,30 +146,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
-text = "HOST GAME (2 PEMAIN)"
-
-[node name="JoinRow" type="HBoxContainer" parent="Center/Panel/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="IpEdit" type="LineEdit" parent="Center/Panel/VBox/JoinRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 56)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 20
-placeholder_text = "IP host, contoh: 192.168.1.10"
-alignment = 1
-
-[node name="Join" type="Button" parent="Center/Panel/VBox/JoinRow"]
-custom_minimum_size = Vector2(150, 56)
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
-text = "JOIN"
+text = "MULTIPLAYER (2 PEMAIN)"
 
 [node name="Status" type="Label" parent="Center/Panel/VBox"]
 unique_name_in_owner = true
@@ -177,7 +154,7 @@ custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.95, 0.8, 1)
 theme_override_font_sizes/font_size = 16
-text = "Pemain 1: tekan HOST GAME.   Pemain 2: isi IP host, lalu tekan JOIN."
+text = "Pilih MAIN SENDIRIAN atau MULTIPLAYER untuk bermain berdua."
 horizontal_alignment = 1
 autowrap_mode = 2
 
@@ -207,6 +184,5 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
 text = "KELUAR"
 
 [connection signal="pressed" from="Center/Panel/VBox/Solo" to="." method="_on_solo_pressed"]
-[connection signal="pressed" from="Center/Panel/VBox/Host" to="." method="_on_host_pressed"]
-[connection signal="pressed" from="Center/Panel/VBox/JoinRow/Join" to="." method="_on_join_pressed"]
+[connection signal="pressed" from="Center/Panel/VBox/Multiplayer" to="." method="_on_multiplayer_pressed"]
 [connection signal="pressed" from="Center/Panel/VBox/Exit" to="." method="_on_exit_pressed"]
