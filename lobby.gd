@@ -54,6 +54,7 @@ var _vis_private: Button
 
 # form gabung lewat IP
 var _ip_edit: LineEdit
+var _ip_port: LineEdit
 var _ip_code: LineEdit
 var _ip_error: Label
 
@@ -349,6 +350,12 @@ func _build_ip_dialog() -> PanelContainer:
 	v.add_child(_field("IP HOST"))
 	_ip_edit = _line_edit("192.168.1.10")
 	v.add_child(_ip_edit)
+
+	v.add_child(_field("PORT (BIARKAN 8910 JIKA TIDAK YAKIN)"))
+	_ip_port = _line_edit("8910")
+	_ip_port.max_length = 5
+	_ip_port.text = "8910"
+	v.add_child(_ip_port)
 
 	v.add_child(_field("KODE ROOM (OPSIONAL)"))
 	_ip_code = _line_edit("kosongkan jika room umum")
@@ -648,7 +655,11 @@ func _make_room_row(r: Dictionary) -> Button:
 	var nm := _label(String(r["name"]), 22, C_TEXT)
 	v.add_child(nm)
 
-	var sub := _label("%s  •  %d/%d pemain  •  %s" % [String(r["mode"]), cur, mx, String(r["ip"])], 13, C_DIM)
+	var addr := String(r["ip"])
+	var row_port := int(r.get("port", 8910))
+	if row_port != 8910:
+		addr += ":%d" % row_port
+	var sub := _label("%s  •  %d/%d pemain  •  %s" % [String(r["mode"]), cur, mx, addr], 13, C_DIM)
 	v.add_child(sub)
 
 	h.add_child(_tag("PRIVAT" if is_private else "UMUM", C_ORANGE if is_private else C_GREEN))
@@ -708,7 +719,7 @@ func _on_create_confirm() -> void:
 
 	var err: int = _net.create_room(nm, MODES[_create_mode.selected], priv, code)
 	if err != OK:
-		_create_error.text = "Gagal membuat room. Port 8910/8911 mungkin dipakai."
+		_create_error.text = "Gagal membuat room: semua port 8910-8917 dipakai. Tutup aplikasi lain yang memakai port tersebut."
 		return
 
 	_refresh_host_dialog()
@@ -730,6 +741,7 @@ func _on_join_pressed() -> void:
 	_ip_error.text = ""
 	if _ip_edit.text.strip_edges().is_empty() and not _rooms.is_empty():
 		_ip_edit.text = String(_rooms[0]["ip"])
+		_ip_port.text = str(int(_rooms[0].get("port", 8910)))
 	_show_dialog(_dlg_ip)
 	_ip_edit.grab_focus()
 
@@ -739,7 +751,10 @@ func _on_ip_confirm() -> void:
 	if ip.is_empty():
 		_ip_error.text = "IP host belum diisi."
 		return
-	_connect_to(ip, _ip_code.text)
+	var port := int(_ip_port.text.strip_edges())
+	if port <= 0:
+		port = 8910
+	_connect_to(ip, _ip_code.text, port)
 
 
 func _on_pass_confirm() -> void:
@@ -747,7 +762,7 @@ func _on_pass_confirm() -> void:
 	if code.is_empty():
 		_pass_error.text = "Masukkan kode room."
 		return
-	_connect_to(String(_pending_room.get("ip", "")), code)
+	_connect_to(String(_pending_room.get("ip", "")), code, int(_pending_room.get("port", 8910)))
 
 
 func _try_join(r: Dictionary) -> void:
@@ -762,18 +777,18 @@ func _try_join(r: Dictionary) -> void:
 		_show_dialog(_dlg_pass)
 		_pass_edit.grab_focus()
 		return
-	_connect_to(String(r["ip"]), "")
+	_connect_to(String(r["ip"]), "", int(r.get("port", 8910)))
 
 
-func _connect_to(ip: String, code: String) -> void:
+func _connect_to(ip: String, code: String, port: int = 8910) -> void:
 	if ip.strip_edges().is_empty():
 		_set_status("IP host tidak diketahui. Ketik manual lewat GABUNG ROOM.", C_RED)
 		return
-	var err: int = _net.join_room(ip, code)
+	var err: int = _net.join_room(ip, code, port)
 	if err != OK:
-		_set_status("Gagal menghubungkan ke %s." % ip, C_RED)
+		_set_status("Gagal menghubungkan ke %s:%d." % [ip, port], C_RED)
 		return
-	_join_info.text = "Menghubungkan ke %s..." % ip
+	_join_info.text = "Menghubungkan ke %s:%d..." % [ip, port]
 	_join_deadline = Time.get_ticks_msec() + JOIN_TIMEOUT_MS
 	_show_dialog(_dlg_join)
 
@@ -843,7 +858,7 @@ func _refresh_host_dialog() -> void:
 		str(_net.room_mode), int(_net.room_max),
 		"PRIVAT" if bool(_net.room_private) else "UMUM",
 	]
-	_host_ip.text = "IP host: " + str(_net.local_ip_text())
+	_host_ip.text = "IP host: " + str(_net.local_ip_text()) + "  •  port " + str(int(_net.game_port))
 	_host_code.visible = bool(_net.room_private)
 	_host_code.text = "Kode room: " + str(_net.room_code)
 

@@ -18,13 +18,19 @@ func _ready() -> void:
 
 # Argumen opsional setelah "--" untuk testing / otomatisasi:
 #   --host            langsung buat room
-#   --join=IP         langsung join ke host
+#   --join=IP         langsung join ke host (port default 8910)
+#   --join=IP:PORT    join ke host dengan port tertentu
 func _handle_cmdline() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg == "--host":
 			_net.create_room("Room Test", "Normal", false, "")
 		elif arg.begins_with("--join="):
-			_net.join_room(arg.substr("--join=".length()))
+			var target := arg.substr("--join=".length())
+			var port := 8910
+			if target.contains(":"):
+				port = int(target.get_slice(":", 1))
+				target = target.get_slice(":", 0)
+			_net.join_room(target, "", port)
 
 
 func _on_status(text: String) -> void:

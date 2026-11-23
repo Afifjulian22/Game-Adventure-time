@@ -91,6 +91,8 @@ func host_game() -> Error:
 	# jadi host mencari port kosong mulai dari PORT.
 	for i in PORT_TRIES:
 		var candidate := PORT + i
+		if not _port_free(candidate):
+			continue
 		var peer := ENetMultiplayerPeer.new()
 		last_err = peer.create_server(candidate, MAX_CLIENTS)
 		if last_err == OK:
@@ -328,10 +330,21 @@ func _room_dict() -> Dictionary:
 		"cur": player_count(),
 		"max": room_max,
 		"private": room_private,
+		"port": game_port,
 	}
 
 
 # ------------------------------------------------------------------ helpers
+## Cek kasar apakah port UDP masih bebas. Dipakai supaya ENet tidak
+## mencetak error saat host mencari port cadangan.
+func _port_free(p: int) -> bool:
+	var udp := PacketPeerUDP.new()
+	if udp.bind(p) != OK:
+		return false
+	udp.close()
+	return true
+
+
 func local_ip_text() -> String:
 	var wifi: Array[String] = []
 	var other: Array[String] = []
