@@ -95,6 +95,102 @@ func is_local_player() -> bool:
 	return local_control
 
 
+# ------------------------------------------------------------------ skin
+# Skin standar (32x32) memakai skala/offset yang sama dengan Pink Man,
+# sedangkan Afif memakai sprite custom yang lebih besar.
+const SKIN_DIR := "res://Free/Main Characters/"
+const STD_SCALE := Vector2(1.1, 1.1)
+const STD_OFFSET := Vector2(0, -15.6)
+const AFIF_SCALE := Vector2(0.4, 0.4)
+const AFIF_OFFSET := Vector2(0, -46.5)
+
+static var _frame_cache: Dictionary = {}
+
+
+## Ganti tampilan karakter. Aman dipanggil kapan saja (saat mulai game
+## maupun saat skin lawan baru diterima dari jaringan).
+func apply_skin(skin_name: String) -> void:
+	if sprite == null:
+		return
+	var frames := _frames_for(skin_name)
+	if frames == null or not frames.has_animation("idle"):
+		if skin_name == "Afif":
+			return
+		skin_name = "Afif"
+		frames = _frames_for("Afif")
+	if frames == null or not frames.has_animation("idle"):
+		return
+	sprite.sprite_frames = frames
+	if skin_name == "Afif":
+		sprite.scale = AFIF_SCALE
+		sprite.offset = AFIF_OFFSET
+	else:
+		sprite.scale = STD_SCALE
+		sprite.offset = STD_OFFSET
+	sprite.play("idle")
+
+
+func _frames_for(skin_name: String) -> SpriteFrames:
+	if _frame_cache.has(skin_name):
+		return _frame_cache[skin_name]
+	var frames: SpriteFrames = null
+	if skin_name == "Afif":
+		frames = _load_afif_frames()
+	else:
+		frames = _build_standard_frames(skin_name)
+	if frames != null:
+		_frame_cache[skin_name] = frames
+	return frames
+
+
+## Afif memakai 3 spritesheet custom. Supaya hasilnya sama persis dengan
+## player.tscn, SpriteFrames-nya diambil dari scene itu (di-load saat runtime
+## agar tidak terjadi referensi melingkar).
+func _load_afif_frames() -> SpriteFrames:
+	var packed := load("res://player.tscn") as PackedScene
+	if packed == null:
+		return null
+	var inst := packed.instantiate()
+	var anim := inst.get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
+	var frames: SpriteFrames = anim.sprite_frames if anim != null else null
+	inst.free()
+	return frames
+
+
+## Empat karakter Pixel Adventure: satu baris frame 32x32 per animasi.
+func _build_standard_frames(skin_name: String) -> SpriteFrames:
+	var dir := SKIN_DIR + skin_name + "/"
+	var sheets := {
+		"idle": ["Idle (32x32).png", 6.0, true],
+		"run": ["Run (32x32).png", 10.0, true],
+		"jump": ["Jump (32x32).png", 1.0, true],
+		"2jump": ["Double Jump (32x32).png", 8.0, true],
+		"fall": ["Fall (32x32).png", 1.0, true],
+		"hit": ["Hit (32x32).png", 10.0, false],
+	}
+	var frames := SpriteFrames.new()
+	frames.remove_animation("default")
+	var loaded := 0
+	for anim in sheets:
+		var info: Array = sheets[anim]
+		var tex := load(dir + String(info[0])) as Texture2D
+		if tex == null:
+			continue
+		loaded += 1
+		frames.add_animation(anim)
+		frames.set_animation_speed(anim, float(info[1]))
+		frames.set_animation_loop(anim, bool(info[2]))
+		var count: int = maxi(1, int(tex.get_width() / 32))
+		for i in count:
+			var at := AtlasTexture.new()
+			at.atlas = tex
+			at.region = Rect2(i * 32, 0, 32, 32)
+			frames.add_frame(anim, at)
+	if loaded == 0:
+		return null
+	return frames
+
+
 func _net_is_multiplayer() -> bool:
 	var net := get_node_or_null("/root/Net")
 	return net != null and net.is_multiplayer()

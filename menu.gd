@@ -45,5 +45,9 @@ func _on_multiplayer_pressed() -> void:
 	_net.open_lobby()
 
 
+func _on_customize_pressed() -> void:
+	_net.open_customize()
+
+
 func _on_exit_pressed() -> void:
 	get_tree().quit()

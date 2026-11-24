@@ -9,13 +9,19 @@ extends Node
 signal status_changed(text: String)
 signal rooms_changed(rooms: Array)
 signal join_failed(reason: String)
+signal skins_changed()
 
 const PORT: int = 8910
 const PORT_TRIES: int = 8          # host mencoba 8910..8917
 const MAX_CLIENTS: int = 1
 const MENU_SCENE: String = "res://menu.tscn"
 const LOBBY_SCENE: String = "res://lobby.tscn"
+const CUSTOMIZE_SCENE: String = "res://customize.tscn"
 const GAME_SCENE: String = "res://node_2d.tscn"
+
+# Skin yang bisa dipakai pemain (folder di Free/Main Characters).
+const SKINS: Array[String] = ["Afif", "Mask Dude", "Ninja Frog", "Pink Man", "Virtual Guy"]
+const SETTINGS_PATH: String = "user://settings.cfg"
 
 const DISCOVERY_PORT: int = 8911
 const DISCOVERY_TRIES: int = 8     # host menjawab di 8911..8918
@@ -35,6 +41,10 @@ var room_code: String = ""
 var game_port: int = PORT          # port ENet yang dipakai host
 var discovery_port: int = DISCOVERY_PORT
 
+# Skin milik perangkat ini dan skin lawan (dikirim saat mulai main).
+var my_skin: String = "Afif"
+var remote_skin: String = ""
+
 var _responder: PacketPeerUDP = null
 var _scanner: PacketPeerUDP = null
 var _found: Dictionary = {}          # key -> { info, ip, seen }
@@ -44,6 +54,7 @@ var _rejecting: bool = false
 
 
 func _ready() -> void:
+	_load_settings()
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
@@ -81,6 +92,30 @@ func is_private_room() -> bool:
 
 func player_count() -> int:
 	return peers.size() + 1
+
+
+# ------------------------------------------------------------------ skin
+func set_my_skin(skin: String) -> void:
+	if not SKINS.has(skin):
+		return
+	my_skin = skin
+	_save_settings()
+	skins_changed.emit()
+
+
+func _save_settings() -> void:
+	var cfg := ConfigFile.new()
+	cfg.set_value("player", "skin", my_skin)
+	cfg.save(SETTINGS_PATH)
+
+
+func _load_settings() -> void:
+	var cfg := ConfigFile.new()
+	if cfg.load(SETTINGS_PATH) != OK:
+		return
+	var skin := String(cfg.get_value("player", "skin", "Afif"))
+	if SKINS.has(skin):
+		my_skin = skin
 
 
 # ------------------------------------------------------------------ host / join
@@ -164,6 +199,11 @@ func open_lobby() -> void:
 	get_tree().change_scene_to_file(LOBBY_SCENE)
 
 
+func open_customize() -> void:
+	reset_peer()
+	get_tree().change_scene_to_file(CUSTOMIZE_SCENE)
+
+
 func back_to_menu() -> void:
 	reset_peer()
 	get_tree().paused = false
@@ -185,6 +225,7 @@ func reset_peer() -> void:
 	room_max = 2
 	game_port = PORT
 	discovery_port = DISCOVERY_PORT
+	remote_skin = ""
 	_rejecting = false
 	_stop_responder()
 
@@ -403,7 +444,7 @@ func _begin_game_with(id: int) -> void:
 	in_game = true
 	_stop_responder()
 	status_changed.emit("Pemain 2 terhubung! Memulai permainan...")
-	_start_client_rpc.rpc_id(id)
+	_start_client_rpc.rpc_id(id, my_skin)
 	get_tree().change_scene_to_file(GAME_SCENE)
 
 
@@ -428,6 +469,7 @@ func _back_to_menu_deferred() -> void:
 
 func _on_connected_to_server() -> void:
 	status_changed.emit("Terhubung! Memeriksa room...")
+	_send_skin_rpc.rpc_id(1, my_skin)
 	_submit_code_rpc.rpc_id(1, room_code)
 
 
@@ -448,9 +490,21 @@ func _on_server_disconnected() -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
-func _start_client_rpc() -> void:
+func _start_client_rpc(host_skin: String = "Afif") -> void:
+	remote_skin = host_skin if SKINS.has(host_skin) else "Afif"
+	skins_changed.emit()
 	in_game = true
 	get_tree().change_scene_to_file(GAME_SCENE)
+
+
+## Client mengirim skin pilihannya ke host saat terhubung,
+## supaya host bisa menampilkan karakter yang sama di layarnya.
+@rpc("any_peer", "call_remote", "reliable")
+func _send_skin_rpc(skin: String) -> void:
+	if not SKINS.has(skin):
+		return
+	remote_skin = skin
+	skins_changed.emit()
 
 
 @rpc("any_peer", "call_remote", "reliable")
