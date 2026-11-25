@@ -143,6 +143,7 @@ shape = SubResource("KillShape")
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=26110631]
 stream = ExtResource("12_music")
 volume_db = -6.0
+bus = &"Music"
 autoplay = true
 
 [node name="KumpulanKoin" type="Node2D" parent="." unique_id=1432000002]
@@ -513,6 +514,16 @@ grow_horizontal = 0
 theme_override_font_sizes/font_size = 18
 text = "II"
 
+[node name="DifficultyLabel" type="Label" parent="CanvasLayer"]
+offset_left = 22.0
+offset_top = 126.0
+offset_right = 420.0
+offset_bottom = 150.0
+theme_override_constants/outline_size = 4
+theme_override_colors/font_outline_color = Color(0.04, 0.03, 0.05, 1)
+theme_override_font_sizes/font_size = 16
+text = "Kesulitan: Normal"
+
 [node name="WinPanel" type="Panel" parent="CanvasLayer" unique_id=803948330]
 unique_name_in_owner = true
 visible = false
@@ -678,6 +689,95 @@ position = Vector2(7688, 622)
 movement_axis = "horizontal"
 travel_distance = 60.0
 movement_speed = 1.6
+
+[node name="ExtraTraps" type="Node2D" parent="."]
+
+[node name="ExtraSpike1" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(470, 624)
+
+[node name="ExtraSpike2" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(800, 624)
+
+[node name="ExtraSpike3" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(832, 624)
+
+[node name="ExtraSpike4" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(1360, 624)
+
+[node name="ExtraSpike5" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(1392, 624)
+
+[node name="ExtraSpike7" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(3170, 624)
+
+[node name="ExtraSpike8" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(3202, 624)
+
+[node name="ExtraSpike9" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(3560, 624)
+
+[node name="ExtraSpike10" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(3592, 624)
+
+[node name="ExtraSpike11" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(4700, 624)
+
+[node name="ExtraSpike12" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(4732, 624)
+
+[node name="ExtraSpike13" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(4990, 624)
+
+[node name="ExtraSpike14" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(5022, 624)
+
+[node name="ExtraSpike15" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(5590, 624)
+
+[node name="ExtraSpike16" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(5622, 624)
+
+[node name="ExtraSpike17" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(6300, 624)
+
+[node name="ExtraSpike18" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(6332, 624)
+
+[node name="ExtraSpike20" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(7800, 624)
+
+[node name="ExtraSpike21" parent="ExtraTraps" instance=ExtResource("4_spike")]
+position = Vector2(7832, 624)
+
+[node name="ExtraFire1" parent="ExtraTraps" instance=ExtResource("5_fire")]
+position = Vector2(5840, 624)
+
+[node name="ExtraFire2" parent="ExtraTraps" instance=ExtResource("5_fire")]
+position = Vector2(7120, 624)
+
+[node name="ExtraFire3" parent="ExtraTraps" instance=ExtResource("5_fire")]
+position = Vector2(7950, 624)
+
+[node name="HardTraps" type="Node2D" parent="."]
+visible = false
+
+[node name="HardSaw1" parent="HardTraps" instance=ExtResource("3_enemy")]
+position = Vector2(1100, 606)
+movement_axis = "horizontal"
+travel_distance = 45.0
+movement_speed = 3.2
+
+[node name="HardSaw2" parent="HardTraps" instance=ExtResource("3_enemy")]
+position = Vector2(7930, 606)
+movement_axis = "horizontal"
+travel_distance = 40.0
+movement_speed = 3.2
+
+[node name="HardFire1" parent="HardTraps" instance=ExtResource("5_fire")]
+position = Vector2(6380, 624)
+
+[node name="HardFire2" parent="HardTraps" instance=ExtResource("5_fire")]
+position = Vector2(7440, 624)
 
 [node name="Platforms" type="Node2D" parent="." unique_id=889578790]
 

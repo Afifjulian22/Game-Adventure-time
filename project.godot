@@ -14,7 +14,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="Escape Together"
+config/name="Adventure time"
 run/main_scene="uid://dd8pwof6tg3q6"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
@@ -22,6 +22,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 Net="*res://net.gd"
+Settings="*res://settings.gd"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
 [display]

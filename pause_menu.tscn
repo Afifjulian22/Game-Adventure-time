@@ -139,6 +139,16 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
 text = "LANJUTKAN"
 
+[node name="Settings" type="Button" parent="Root/Center/Panel/VBox"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "PENGATURAN SUARA"
+
 [node name="MainMenu" type="Button" parent="Root/Center/Panel/VBox"]
 custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
@@ -160,5 +170,6 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
 text = "KELUAR"
 
 [connection signal="pressed" from="Root/Center/Panel/VBox/Resume" to="." method="_on_resume_pressed"]
+[connection signal="pressed" from="Root/Center/Panel/VBox/Settings" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="Root/Center/Panel/VBox/MainMenu" to="." method="_on_main_menu_pressed"]
 [connection signal="pressed" from="Root/Center/Panel/VBox/Quit" to="." method="_on_quit_pressed"]

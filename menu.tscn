@@ -158,6 +158,16 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
 text = "CUSTOMIZE SKIN"
 
+[node name="Settings" type="Button" parent="Center/Panel/VBox"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "PENGATURAN SUARA"
+
 [node name="Status" type="Label" parent="Center/Panel/VBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
@@ -196,4 +206,5 @@ text = "KELUAR"
 [connection signal="pressed" from="Center/Panel/VBox/Solo" to="." method="_on_solo_pressed"]
 [connection signal="pressed" from="Center/Panel/VBox/Multiplayer" to="." method="_on_multiplayer_pressed"]
 [connection signal="pressed" from="Center/Panel/VBox/Customize" to="." method="_on_customize_pressed"]
+[connection signal="pressed" from="Center/Panel/VBox/Settings" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="Center/Panel/VBox/Exit" to="." method="_on_exit_pressed"]

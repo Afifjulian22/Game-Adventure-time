@@ -17,7 +17,7 @@ const C_BORDER := Color(1.0, 1.0, 1.0, 0.16)
 const C_BTN := Color(0.09, 0.1, 0.14, 0.94)
 const C_BTN_HOVER := Color(0.16, 0.17, 0.23, 0.98)
 
-const MODES := ["Normal", "Santai", "Sulit"]
+const MODES := ["Mudah", "Normal", "Sulit"]
 const SCAN_INTERVAL_MS := 1600
 const JOIN_TIMEOUT_MS := 8000
 
@@ -46,6 +46,7 @@ var _status_label: Label
 # form buat room
 var _create_name: LineEdit
 var _create_mode: OptionButton
+var _mode_hint: Label
 var _create_code: LineEdit
 var _create_code_row: VBoxContainer
 var _create_error: Label
@@ -285,7 +286,15 @@ func _build_create_dialog() -> PanelContainer:
 		_create_mode.add_item(m)
 	_create_mode.custom_minimum_size = Vector2(0, 50)
 	_create_mode.add_theme_font_size_override("font_size", 18)
+	_create_mode.item_selected.connect(_on_mode_selected)
 	v.add_child(_create_mode)
+
+	# Keterangan singkat isi tiap mode, berubah saat mode diganti.
+	_mode_hint = _label("", 12, C_DIM)
+	_mode_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	v.add_child(_mode_hint)
+	_create_mode.selected = MODES.find("Normal")
+	_update_mode_hint()
 
 	v.add_child(_field("VISIBILITAS"))
 	var vis := HBoxContainer.new()
@@ -728,6 +737,24 @@ func _on_create_confirm() -> void:
 
 func _on_vis_toggled(on: bool) -> void:
 	_create_code_row.visible = on
+
+
+## Keterangan mode: menjelaskan efek kesulitan ke pemain.
+func _on_mode_selected(_index: int) -> void:
+	_update_mode_hint()
+
+
+func _update_mode_hint() -> void:
+	if _mode_hint == null or _create_mode == null:
+		return
+	var mode: String = MODES[_create_mode.selected]
+	match mode:
+		"Mudah":
+			_mode_hint.text = "Rintangan sedikit, trap lambat. Cocok untuk santai & pemain baru."
+		"Sulit":
+			_mode_hint.text = "Rintangan paling banyak, trap sangat cepat, platform cepat jatuh."
+		_:
+			_mode_hint.text = "Rintangan lebih banyak, trap lebih cepat, dan level lebih sulit diselesaikan."
 
 
 func _on_close_room() -> void:

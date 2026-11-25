@@ -163,7 +163,7 @@ func _on_back_pressed() -> void:
 func _preview_texture(skin: String) -> AtlasTexture:
 	var at := AtlasTexture.new()
 	if skin == "Afif":
-		at.atlas = load("res://Free/Main Characters/Afif/aligned/afif-aligned.png")
+		at.atlas = load("res://Free/Main Characters/Afif/afif-aligned.png")
 		# Potong area kosong di sekitar karakter agar preview tidak kecil.
 		at.region = Rect2(38, 53, 58, 82)
 	else:

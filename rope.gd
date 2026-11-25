@@ -12,11 +12,20 @@ extends Node2D
 @export var max_sag: float = 36.0
 @export var rope_texture: Texture2D = preload("res://rope_tile.png")
 
+# --- menggulung tali ------------------------------------------------------
+@export var min_length: float = 90.0     # tali paling pendek saat digulung
+@export var roll_speed: float = 190.0    # px/detik saat tombol ditahan
+@export var release_speed: float = 120.0 # px/detik saat tali dilepas
+
+var current_length: float = max_length
+var rolling: bool = false
+
 var _line: Line2D
 
 
 func _ready() -> void:
 	z_index = 1
+	current_length = max_length
 
 	_line = Line2D.new()
 	_line.texture = rope_texture
@@ -32,7 +41,9 @@ func _ready() -> void:
 	add_child(_line)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_update_length(delta)
+
 	var players := _players()
 	if players.size() < 2:
 		_line.visible = false
@@ -44,7 +55,7 @@ func _process(_delta: float) -> void:
 
 	# Tali melengkung kalau kendor; tetap melengkung sedikit saat tegang
 	# supaya tidak terlihat seperti balok kayu.
-	var sag := minf((max_length - minf(distance, max_length)) * 0.25 + 4.0, max_sag)
+	var sag := minf((current_length - minf(distance, current_length)) * 0.25 + 4.0, max_sag)
 
 	var points := PackedVector2Array()
 	for i in segments + 1:
@@ -68,3 +79,31 @@ func _players() -> Array:
 # Kedua karakter hanya boleh berjauhan sejauh ini (dipakai player.gd).
 func get_max_length() -> float:
 	return max_length
+
+
+# Panjang tali aktif: mengecil saat digulung, kembali normal saat dilepas.
+func get_current_length() -> float:
+	return current_length
+
+
+func is_rolling() -> bool:
+	return rolling
+
+
+# Dipanggil player lokal saat tombol gulung ditekan / dilepas.
+func set_rolling(on: bool) -> void:
+	rolling = on
+
+
+# Sinkronisasi dari perangkat lawan (dikirim bersama posisi, 20x/detik).
+func set_remote_state(length: float, on: bool) -> void:
+	current_length = clampf(length, min_length, max_length)
+	rolling = on
+
+
+func _update_length(delta: float) -> void:
+	if rolling:
+		current_length = maxf(min_length, current_length - roll_speed * delta)
+	elif current_length < max_length:
+		current_length = minf(max_length, current_length + release_speed * delta)
+

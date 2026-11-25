@@ -105,6 +105,8 @@ func set_my_skin(skin: String) -> void:
 
 func _save_settings() -> void:
 	var cfg := ConfigFile.new()
+	# Muat dulu supaya pengaturan lain (mis. volume audio) tidak terhapus.
+	cfg.load(SETTINGS_PATH)
 	cfg.set_value("player", "skin", my_skin)
 	cfg.save(SETTINGS_PATH)
 
@@ -148,7 +150,7 @@ func create_room(p_name: String, p_mode: String, p_private: bool, p_code: String
 	room_name = p_name.strip_edges()
 	if room_name.is_empty():
 		room_name = "Room " + _device_name()
-	room_mode = p_mode
+	room_mode = normalize_mode(p_mode)
 	room_private = p_private
 	room_code = p_code.strip_edges() if p_private else ""
 	room_max = 2
@@ -421,6 +423,19 @@ func device_name() -> String:
 	return _device_name()
 
 
+## Nama mode resmi: "Mudah" / "Normal" / "Sulit".
+## "Santai" adalah nama lama untuk Mudah, tetap diterima supaya room dari
+## versi sebelumnya tidak ditolak.
+func normalize_mode(mode: String) -> String:
+	match mode.strip_edges().to_lower():
+		"mudah", "santai", "easy":
+			return "Mudah"
+		"sulit", "hard":
+			return "Sulit"
+		_:
+			return "Normal"
+
+
 # ------------------------------------------------------------------ callbacks
 func _on_peer_connected(id: int) -> void:
 	if role != "host":
@@ -444,7 +459,7 @@ func _begin_game_with(id: int) -> void:
 	in_game = true
 	_stop_responder()
 	status_changed.emit("Pemain 2 terhubung! Memulai permainan...")
-	_start_client_rpc.rpc_id(id, my_skin)
+	_start_client_rpc.rpc_id(id, my_skin, room_mode)
 	get_tree().change_scene_to_file(GAME_SCENE)
 
 
@@ -490,8 +505,11 @@ func _on_server_disconnected() -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
-func _start_client_rpc(host_skin: String = "Afif") -> void:
+func _start_client_rpc(host_skin: String = "Afif", mode: String = "Normal") -> void:
 	remote_skin = host_skin if SKINS.has(host_skin) else "Afif"
+	# Kesulitan harus sama di kedua perangkat, karena rintangan dihitung
+	# sendiri-sendiri di tiap perangkat.
+	room_mode = normalize_mode(mode)
 	skins_changed.emit()
 	in_game = true
 	get_tree().change_scene_to_file(GAME_SCENE)

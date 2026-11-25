@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cgf80hb1lnemj"]
 
-[ext_resource type="Texture2D" uid="uid://5fo0sgowis27" path="res://Free/Main Characters/Afif/aligned/afif-aligned.png" id="1_tex"]
-[ext_resource type="Texture2D" uid="uid://cfv2kudnhncso" path="res://Free/Main Characters/Afif/aligned/falling-aligned.png" id="2_tex"]
+[ext_resource type="Texture2D" uid="uid://5fo0sgowis27" path="res://Free/Main Characters/Afif/afif-aligned.png" id="1_tex"]
+[ext_resource type="Texture2D" uid="uid://cfv2kudnhncso" path="res://Free/Main Characters/Afif/falling-aligned.png" id="2_tex"]
 [ext_resource type="Script" uid="uid://cd7w6577wh5vg" path="res://player.gd" id="7_script"]
 [ext_resource type="Texture2D" uid="uid://h7w8pcxs00ot" path="res://ui/touch_left.png" id="8_tl"]
 [ext_resource type="Texture2D" uid="uid://b3rmptjm4dw63" path="res://ui/touch_left_pressed.png" id="9_tlp"]

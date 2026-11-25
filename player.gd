@@ -40,9 +40,26 @@ var _sync_timer: float = 0.0
 var _remote_target: Vector2 = Vector2.ZERO
 var _has_remote_target: bool = false
 
+# --- tombol layar sentuh --------------------------------------------------
+const TOUCH_SIZE: float = 108.0
+const TOUCH_MARGIN: float = 22.0
+const TOUCH_GAP: float = 16.0
+
+const BTN_LEFT_TEXTURE := preload("res://ui/btn_left.png")
+const BTN_LEFT_PRESSED := preload("res://ui/btn_left_pressed.png")
+const BTN_RIGHT_TEXTURE := preload("res://ui/btn_right.png")
+const BTN_RIGHT_PRESSED := preload("res://ui/btn_right_pressed.png")
+const BTN_JUMP_TEXTURE := preload("res://ui/btn_jump.png")
+const BTN_JUMP_PRESSED := preload("res://ui/btn_jump_pressed.png")
+
 # --- tali ---------------------------------------------------------------
+const ROLL_TEXTURE := preload("res://ui/btn_roll.png")
+const ROLL_TEXTURE_PRESSED := preload("res://ui/btn_roll_pressed.png")
+
 var _rope: Node = null
 var _rope_length: float = 0.0
+var _rolling: bool = false
+var btn_roll: TouchScreenButton = null
 
 
 func _ready() -> void:
@@ -63,6 +80,8 @@ func _ready() -> void:
 	lives = MAX_LIVES
 	_update_hearts()
 
+	_create_roll_button()
+	_apply_touch_textures()
 	_layout_touch_buttons()
 	get_viewport().size_changed.connect(_layout_touch_buttons)
 
@@ -87,8 +106,10 @@ func setup_player(index: int, local: bool, owner_peer: int) -> void:
 		_remote_target = global_position
 
 	# Tali hanya mengikat saat bermain berdua.
-	if local_control and _rope != null and _net_is_multiplayer():
-		_rope_length = _rope.get_max_length()
+	if _rope != null and _net_is_multiplayer():
+		_rope_length = _rope.get_current_length()
+		if btn_roll != null:
+			btn_roll.visible = local_control
 
 
 func is_local_player() -> bool:
@@ -206,11 +227,11 @@ func _send_state(delta: float) -> void:
 		return
 	_sync_timer = 0.0
 
-	_net_state.rpc(global_position, velocity, String(sprite.animation), sprite.flip_h, is_dead)
+	_net_state.rpc(global_position, velocity, String(sprite.animation), sprite.flip_h, is_dead, _rope_length, _rolling)
 
 
 @rpc("authority", "call_remote", "unreliable_ordered")
-func _net_state(pos: Vector2, vel: Vector2, anim: String, flip: bool, dead: bool) -> void:
+func _net_state(pos: Vector2, vel: Vector2, anim: String, flip: bool, dead: bool, rope_len: float = 0.0, peer_rolling: bool = false) -> void:
 	_remote_target = pos
 	_has_remote_target = true
 	velocity = vel
@@ -220,6 +241,12 @@ func _net_state(pos: Vector2, vel: Vector2, anim: String, flip: bool, dead: bool
 
 	sprite.flip_h = flip
 	sprite.modulate.a = 0.5 if dead else 1.0
+
+	# Tali adalah benda yang sama di kedua perangkat. Saat lawan menggulung,
+	# ikuti panjang talinya supaya tarikannya terasa seimbang.
+	if _rope != null and _net_is_multiplayer() and not _rolling:
+		_rope.set_remote_state(rope_len, peer_rolling)
+		_rope_length = _rope.get_current_length()
 
 
 # Karakter lawan digerakkan halus menuju posisi terakhir dari jaringan.
@@ -234,16 +261,51 @@ func _process(delta: float) -> void:
 # window / phone size is.
 func _layout_touch_buttons() -> void:
 	var vp := get_viewport_rect().size
-	var margin := 110.0
-	btn_left.position = Vector2(84.0, vp.y - margin)
-	btn_right.position = Vector2(196.0, vp.y - margin)
-	btn_jump.position = Vector2(vp.x - margin, vp.y - margin)
+	var half := TOUCH_SIZE * 0.5
+	var side := TOUCH_MARGIN
+
+	# Kiri / kanan di pojok kiri bawah.
+	var walk_y := vp.y - side - half
+	_place_touch_button(btn_left, Vector2(side + half, walk_y))
+	_place_touch_button(btn_right, Vector2(side + half * 3.0 + TOUCH_GAP, walk_y))
+
+	# Lompat di pojok kanan bawah, gulung tali tepat di atasnya.
+	var right_x := vp.x - side - half
+	var jump_y := vp.y - side - half
+	_place_touch_button(btn_jump, Vector2(right_x, jump_y))
+	_place_touch_button(btn_roll, Vector2(right_x, jump_y - TOUCH_SIZE - TOUCH_GAP))
 
 	var hearts := _hearts()
 	var start_x := 24.0
 	for i in hearts.size():
 		hearts[i].size = Vector2(HEART_SIZE, HEART_SIZE)
 		hearts[i].position = Vector2(start_x + i * (HEART_SIZE + HEART_GAP), 20.0)
+
+
+# Semua tombol dibuat sama besar tanpa mengubah proporsi gambarnya.
+func _apply_touch_textures() -> void:
+	_apply_touch_texture(btn_left, BTN_LEFT_TEXTURE, BTN_LEFT_PRESSED)
+	_apply_touch_texture(btn_right, BTN_RIGHT_TEXTURE, BTN_RIGHT_PRESSED)
+	_apply_touch_texture(btn_jump, BTN_JUMP_TEXTURE, BTN_JUMP_PRESSED)
+	_apply_touch_texture(btn_roll, ROLL_TEXTURE, ROLL_TEXTURE_PRESSED)
+
+
+func _apply_touch_texture(btn: TouchScreenButton, normal: Texture2D, pressed: Texture2D) -> void:
+	if btn == null:
+		return
+	btn.texture_normal = normal
+	btn.texture_pressed = pressed
+	var tex_size := normal.get_size()
+	var factor := TOUCH_SIZE / maxf(tex_size.x, tex_size.y)
+	btn.scale = Vector2(factor, factor)
+
+
+# Posisi TouchScreenButton dihitung dari pojok kiri atas teksturnya.
+func _place_touch_button(btn: TouchScreenButton, center: Vector2) -> void:
+	if btn == null or btn.texture_normal == null:
+		return
+	var visual := btn.texture_normal.get_size() * btn.scale
+	btn.position = center - visual * 0.5
 
 
 func _hearts() -> Array:
@@ -257,6 +319,8 @@ func _update_hearts() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_update_rope_state()
+
 	if is_dead:
 		_send_state(delta)
 		return
@@ -298,6 +362,36 @@ func _physics_process(delta: float) -> void:
 
 
 # --- tali ---------------------------------------------------------------
+func _create_roll_button() -> void:
+	btn_roll = TouchScreenButton.new()
+	btn_roll.name = "BtnRoll"
+	btn_roll.z_index = 2
+	btn_roll.visible = false
+	$CanvasLayer.add_child(btn_roll)
+
+
+# Tombol gulung hanya berarti saat bermain berdua (tali mengikat dua pemain).
+func _roll_held() -> bool:
+	if is_dead:
+		return false
+	if btn_roll != null and btn_roll.visible and btn_roll.is_pressed():
+		return true
+	# Pintasan keyboard untuk menguji di PC.
+	return Input.is_physical_key_pressed(KEY_R)
+
+
+func _update_rope_state() -> void:
+	if _rope == null or not _net_is_multiplayer():
+		_rolling = false
+		return
+
+	var held := _roll_held()
+	if held != _rolling:
+		_rolling = held
+		_rope.set_rolling(held)
+	_rope_length = _rope.get_current_length()
+
+
 func _rope_partner_node() -> Node2D:
 	var best: Node2D = null
 	var best_distance := INF
@@ -330,8 +424,16 @@ func _apply_rope_constraint() -> void:
 	if distance <= 0.001 or distance <= _rope_length:
 		return
 
+	# Saat tali digulung, penarik menahan diri dan lawan yang lebih banyak
+	# tertarik. Sisanya dibagi supaya total koreksi tetap 100%.
+	var share := 0.5
+	if _rolling:
+		share = 0.15
+	elif _rope != null and _rope.is_rolling():
+		share = 0.85
+
 	var direction := offset / distance
-	global_position -= direction * (distance - _rope_length) * 0.5
+	global_position -= direction * (distance - _rope_length) * share
 
 	# Buang kecepatan yang menjauh supaya tidak terus menekan tali.
 	var away := velocity.dot(direction)
