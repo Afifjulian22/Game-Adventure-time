@@ -9,10 +9,14 @@ extends CharacterBody2D
 @export var fall_limit: float = 1000.0
 
 # --- lives / hearts -------------------------------------------------------
-const MAX_LIVES: int = 3
+const DEFAULT_LIVES: int = 3
 const HEART_SHEET := preload("res://Free/Pixel Heart Sprite Sheet 32x32.png")
 const HEART_SIZE: float = 44.0
 const HEART_GAP: float = 6.0
+
+## Jumlah nyawa maksimal. Level bisa menurunkannya lewat set_max_lives()
+## (mis. map hard hanya memberi 2 nyawa).
+@export var max_lives: int = DEFAULT_LIVES
 
 # --- multiplayer ----------------------------------------------------------
 const NET_SYNC_INTERVAL: float = 0.05   # 20 kali per detik
@@ -29,7 +33,7 @@ var spawn_point: Vector2 = Vector2.ZERO
 var safe_position: Vector2 = Vector2.ZERO
 var is_dead: bool = false
 var is_invulnerable: bool = false
-var lives: int = MAX_LIVES
+var lives: int = DEFAULT_LIVES
 var _heart_full: AtlasTexture
 var _heart_empty: AtlasTexture
 
@@ -77,7 +81,7 @@ func _ready() -> void:
 	_heart_empty.atlas = HEART_SHEET
 	_heart_empty.region = Rect2(64, 0, 32, 32)
 
-	lives = MAX_LIVES
+	lives = max_lives
 	_update_hearts()
 
 	_create_roll_button()
@@ -312,9 +316,20 @@ func _hearts() -> Array:
 	return [$CanvasLayer/Heart1, $CanvasLayer/Heart2, $CanvasLayer/Heart3]
 
 
+## Dipanggil level.gd sesuai tingkat kesulitan (map hard hanya memberi
+## 2 nyawa). Scene hanya punya 3 hati, jadi nilainya dibatasi 1..3.
+func set_max_lives(value: int) -> void:
+	max_lives = clampi(value, 1, _hearts().size())
+	lives = max_lives
+	_update_hearts()
+
+
 func _update_hearts() -> void:
 	var hearts := _hearts()
 	for i in hearts.size():
+		# Hati yang tidak dipakai (mis. 2 nyawa) benar-benar disembunyikan
+		# supaya pemain tidak bingung melihat hati kosong.
+		hearts[i].visible = i < max_lives
 		hearts[i].texture = _heart_full if i < lives else _heart_empty
 
 
