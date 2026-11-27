@@ -203,8 +203,105 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
 text = "KELUAR"
 
+[node name="LevelSelect" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+visible = false
+mouse_filter = 0
+
+[node name="Scrim" type="ColorRect" parent="LevelSelect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.03, 0.05, 0.72)
+
+[node name="Center" type="CenterContainer" parent="LevelSelect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="LevelSelect/Center"]
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="LevelSelect/Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="LevelSelect/Center/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.84, 0.5, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.03, 0.06, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 32
+text = "PILIH LEVEL"
+horizontal_alignment = 1
+
+[node name="Hint" type="Label" parent="LevelSelect/Center/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.85, 0.75)
+theme_override_font_sizes/font_size = 15
+text = "Kesulitan mempengaruhi jumlah rintangan, kecepatan trap, dan platform."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Easy" type="Button" parent="LevelSelect/Center/Panel/VBox"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "MUDAH"
+
+[node name="Normal" type="Button" parent="LevelSelect/Center/Panel/VBox"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "NORMAL"
+
+[node name="Sulit" type="Button" parent="LevelSelect/Center/Panel/VBox"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "SULIT"
+
+[node name="Back" type="Button" parent="LevelSelect/Center/Panel/VBox"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "KEMBALI"
+
 [connection signal="pressed" from="Center/Panel/VBox/Solo" to="." method="_on_solo_pressed"]
 [connection signal="pressed" from="Center/Panel/VBox/Multiplayer" to="." method="_on_multiplayer_pressed"]
 [connection signal="pressed" from="Center/Panel/VBox/Customize" to="." method="_on_customize_pressed"]
 [connection signal="pressed" from="Center/Panel/VBox/Settings" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="Center/Panel/VBox/Exit" to="." method="_on_exit_pressed"]
+[connection signal="pressed" from="LevelSelect/Center/Panel/VBox/Easy" to="." method="_on_level_easy_pressed"]
+[connection signal="pressed" from="LevelSelect/Center/Panel/VBox/Normal" to="." method="_on_level_normal_pressed"]
+[connection signal="pressed" from="LevelSelect/Center/Panel/VBox/Sulit" to="." method="_on_level_sulit_pressed"]
+[connection signal="pressed" from="LevelSelect/Center/Panel/VBox/Back" to="." method="_on_level_back_pressed"]

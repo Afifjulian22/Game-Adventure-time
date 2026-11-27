@@ -18,9 +18,12 @@ const MENU_SCENE: String = "res://menu.tscn"
 const LOBBY_SCENE: String = "res://lobby.tscn"
 const CUSTOMIZE_SCENE: String = "res://customize.tscn"
 const GAME_SCENE: String = "res://node_2d.tscn"
+const SCENE_EASY: String = "res://map_easy.tscn"
+const SCENE_NORMAL: String = "res://map_normal.tscn"
+const SCENE_SULIT: String = "res://map_sulit.tscn"
 
 # Skin yang bisa dipakai pemain (folder di Free/Main Characters).
-const SKINS: Array[String] = ["Afif", "Mask Dude", "Ninja Frog", "Pink Man", "Virtual Guy"]
+const SKINS: Array[String] = ["Afif", "Mask Dude", "Ninja Frog", "Pink Man", "Virtual Guy", "Zeno"]
 const SETTINGS_PATH: String = "user://settings.cfg"
 
 const DISCOVERY_PORT: int = 8911
@@ -31,6 +34,8 @@ const ROOM_TTL_MS: int = 4000
 var role: String = "single"   # "single" | "host" | "client"
 var peers: Array[int] = []
 var in_game: bool = false
+## Scene level yang sedang dimuat (dipakai restart_level).
+var active_game_scene: String = GAME_SCENE
 
 # Info room saat jadi host, atau kode yang dipakai saat join (client).
 var room_name: String = ""
@@ -190,10 +195,26 @@ func join_room(ip: String, code: String = "", p_port: int = 0) -> Error:
 
 
 # ------------------------------------------------------------------ scene flow
-func start_solo() -> void:
+## Main sendirian. `mode` = kesulitan peta: "Mudah" / "Normal" / "Sulit".
+## Peta yang dipakai adalah scene kesulitan masing-masing (map_easy.tscn dll.),
+## kesulitannya juga disimpan di room_mode supaya restart memuat map yang sama.
+func start_solo(mode: String = "Normal") -> void:
 	reset_peer()
+	room_mode = normalize_mode(mode)
 	in_game = true
-	get_tree().change_scene_to_file(GAME_SCENE)
+	active_game_scene = scene_for_mode(room_mode)
+	get_tree().change_scene_to_file(active_game_scene)
+
+
+## Peta per kesulitan (scene turunan node_2d.tscn).
+func scene_for_mode(mode: String) -> String:
+	match normalize_mode(mode):
+		"Mudah":
+			return SCENE_EASY
+		"Sulit":
+			return SCENE_SULIT
+		_:
+			return SCENE_NORMAL
 
 
 func open_lobby() -> void:
@@ -230,6 +251,7 @@ func reset_peer() -> void:
 	remote_skin = ""
 	_rejecting = false
 	_stop_responder()
+	active_game_scene = GAME_SCENE
 
 
 # ------------------------------------------------------------------ discovery
@@ -460,6 +482,7 @@ func _begin_game_with(id: int) -> void:
 	_stop_responder()
 	status_changed.emit("Pemain 2 terhubung! Memulai permainan...")
 	_start_client_rpc.rpc_id(id, my_skin, room_mode)
+	active_game_scene = GAME_SCENE
 	get_tree().change_scene_to_file(GAME_SCENE)
 
 
@@ -512,6 +535,7 @@ func _start_client_rpc(host_skin: String = "Afif", mode: String = "Normal") -> v
 	room_mode = normalize_mode(mode)
 	skins_changed.emit()
 	in_game = true
+	active_game_scene = GAME_SCENE
 	get_tree().change_scene_to_file(GAME_SCENE)
 
 
@@ -567,7 +591,7 @@ func _restart_level_rpc() -> void:
 		return
 	_restart_pending = true
 	get_tree().paused = false
-	get_tree().change_scene_to_file(GAME_SCENE)
+	get_tree().change_scene_to_file(active_game_scene)
 
 	# Beri waktu supaya kiriman RPC dari perangkat lain yang datang
 	# hampir bersamaan tidak memicu reload kedua.

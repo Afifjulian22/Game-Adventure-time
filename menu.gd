@@ -49,7 +49,59 @@ func _on_status(text: String) -> void:
 
 
 func _on_solo_pressed() -> void:
-	_net.start_solo()
+	_open_level_select()
+
+
+# ------------------------------------------------- pilihan level kesulitan
+func _open_level_select() -> void:
+	var panel := get_node_or_null("LevelSelect") as Control
+	if panel == null:
+		# Fallback kalau panel tidak ada.
+		_net.start_solo("Normal")
+		return
+	panel.visible = true
+	panel.move_to_front()
+	var first := panel.find_child("Easy", true, false) as Button
+	if first != null:
+		first.grab_focus()
+
+
+func _close_level_select() -> void:
+	var panel := get_node_or_null("LevelSelect")
+	if panel != null:
+		panel.visible = false
+	var solo := get_node_or_null("Center/Panel/VBox/Solo") as Button
+	if solo != null:
+		solo.grab_focus()
+
+
+func _on_level_easy_pressed() -> void:
+	_start_solo_level("Mudah")
+
+
+func _on_level_normal_pressed() -> void:
+	_start_solo_level("Normal")
+
+
+func _on_level_sulit_pressed() -> void:
+	_start_solo_level("Sulit")
+
+
+func _on_level_back_pressed() -> void:
+	_close_level_select()
+
+
+func _start_solo_level(mode: String) -> void:
+	_net.start_solo(mode)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not event.is_action_pressed("ui_cancel"):
+		return
+	var panel := get_node_or_null("LevelSelect")
+	if panel != null and panel.visible:
+		panel.visible = false
+		get_viewport().set_input_as_handled()
 
 
 func _on_multiplayer_pressed() -> void:

@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=4]
+
+[ext_resource type="PackedScene" uid="uid://cefuwu3qyewx7" path="res://node_2d.tscn" id="1_base"]
+
+[node name="Level1" instance=ExtResource("1_base")]
+difficulty = "Sulit"
+use_room_difficulty = false
+
+[node name="ExtraTraps" parent="." index="11"]
+visible = true
+
+[node name="HardTraps" parent="." index="12"]
+visible = true
